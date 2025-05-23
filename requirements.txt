@@ -1,0 +1,20 @@
+fastapi==0.111.0 # Current stable version at time of writing
+uvicorn==0.30.1 # ASGI server for FastAPI
+SQLAlchemy==2.0.30 # ORM for database interaction
+psycopg2-binary==2.9.9 # PostgreSQL adapter. Use 'PyMySQL' for MySQL, 'SQLAlchemy' for SQLite
+passlib[bcrypt]==1.7.4 # For password hashing
+python-jose[cryptography]==3.3.0 # For JWT token handling
+python-dotenv==1.0.1 # For loading environment variables from .env file
+pydantic==2.7.1 # Data validation and settings management (FastAPI uses it extensively)
+pydantic-settings==2.2.1 # Pydantic extension for settings management
+alembic==1.13.1 # Database migration tool
+# Optional: For email sending (choose one based on your email service)
+# aiosmtplib==1.3.1 # Async SMTP client
+# Or simpler:
+# email-validator==2.1.1 # For email address validation beyond basic regex
+# httpx==0.27.0 # For making HTTP requests (e.g., if using an API for email sending)
+
+# Development/Testing dependencies
+# pytest==8.2.1
+# pytest-asyncio==0.23.0
+# httpx==0.27.0 # For testing FastAPI applications
