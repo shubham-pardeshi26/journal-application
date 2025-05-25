@@ -6,8 +6,8 @@ from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from app.db.models import Base
-
+from app.db import Base
+from app.db.models.user import get_utc_now
 class Comment(Base):
     __tablename__ = "comments"
 
@@ -15,8 +15,8 @@ class Comment(Base):
     journal_id = Column(UUID(as_uuid=True), ForeignKey('journals.id'), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
     comment_text = Column(Text, nullable=True) # Nullable for media-only comments
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, default=get_utc_now) # <--- UPDATED
+    updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now) # <--- UPDATED
     is_deleted = Column(Boolean, default=False)
 
     # Relationships

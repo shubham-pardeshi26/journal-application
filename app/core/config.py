@@ -33,7 +33,6 @@ class Settings(BaseSettings):
     # --- Project Settings ---
     PROJECT_NAME: str = "Journaling App Backend"
     API_V1_STR: str = "/api/v1" # Base path for API version 1
-
     # Add any other settings you might need, e.g., for file storage (S3 bucket details)
     # AWS_ACCESS_KEY_ID: Optional[str] = None
     # AWS_SECRET_ACCESS_KEY: Optional[str] = None
@@ -41,4 +40,3 @@ class Settings(BaseSettings):
     # S3_BUCKET_NAME: Optional[str] = None
 
 settings = Settings()
-print(settings.DATABASE_URL)

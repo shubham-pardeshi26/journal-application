@@ -6,7 +6,7 @@ from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from app.db.models import Base
+from app.db import Base
 
 class Media(Base):
     __tablename__ = "media"
@@ -20,6 +20,7 @@ class Media(Base):
     uploaded_at = Column(DateTime, default=func.now())
     is_deleted = Column(Boolean, default=False)
     deleted_at = Column(DateTime, nullable=True)
+
 
     # Relationships
     journal_entry = relationship("Journal", foreign_keys=[journal_id], back_populates="media")

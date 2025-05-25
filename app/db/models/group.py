@@ -1,27 +1,26 @@
 # app/db/models/group.py
-
-import uuid
-from datetime import datetime
+# ...
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from app.db.models import Base
-
+from app.db import Base
+import uuid # Make sure uuid is imported
+from app.db.models.user import get_utc_now
 class Group(Base):
     __tablename__ = "groups"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(100), nullable=False)
     group_code = Column(String(10), unique=True, index=True, nullable=False)
     max_members = Column(Integer, nullable=False)
-    created_by_user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    # CORRECTED LINE: Removed type_=String(36) from ForeignKey
+    created_by_user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+    created_at = Column(DateTime, default=get_utc_now) # <--- UPDATED
+    updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now) # <--- UPDATED
 
     # Relationships
     members = relationship("GroupMember", back_populates="group")
-    creator = relationship("User", foreign_keys=[created_by_user_id]) # Assuming User model is defined
+    creator = relationship("User", foreign_keys=[created_by_user_id]) # Still need foreign_keys here for clarity/ambiguity if multiple FKs to User
 
     def __repr__(self):
         return f"<Group(name='{self.name}', code='{self.group_code}')>"
@@ -29,15 +28,17 @@ class Group(Base):
 class GroupMember(Base):
     __tablename__ = "group_members"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    group_id = Column(UUID(as_uuid=True), ForeignKey('groups.id'), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
-    joined_at = Column(DateTime, default=func.now())
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    # CORRECTED LINE: Removed type_=String(36) from ForeignKey
+    group_id = Column(String(36), ForeignKey('groups.id'), nullable=False)
+    # CORRECTED LINE: Removed type_=String(36) from ForeignKey
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+    joined_at = Column(DateTime, default=get_utc_now)
     is_admin = Column(Boolean, default=False)
 
     # Relationships
     group = relationship("Group", back_populates="members")
-    user = relationship("User") # Assuming User model is defined
+    user = relationship("User")
 
     def __repr__(self):
         return f"<GroupMember(group_id='{self.group_id}', user_id='{self.user_id}')>"

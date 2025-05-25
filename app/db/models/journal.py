@@ -6,8 +6,8 @@ from sqlalchemy import Column, String, Text, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from app.db.models import Base
-
+from app.db import Base
+from app.db.models.user import get_utc_now
 class Journal(Base):
     __tablename__ = "journals"
 
@@ -19,8 +19,8 @@ class Journal(Base):
     location = Column(String(255), nullable=True)
     j_type = Column(String(50), nullable=True) # Will store ENUM values as string
     mood = Column(String(50), nullable=True)
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, default=get_utc_now) # <--- UPDATED
+    updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now) # <--- UPDATED
 
     # Relationships
     creator = relationship("User", foreign_keys=[user_id])

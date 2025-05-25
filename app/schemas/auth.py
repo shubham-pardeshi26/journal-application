@@ -1,28 +1,22 @@
 # app/schemas/auth.py
-
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
-import uuid
 
-# Schema for user login
 class UserLogin(BaseModel):
-    email_or_username: str
+    username: str # This field will accept either username or email
     password: str
 
-# Schema for token response (after successful login)
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
-# Schema for email verification request
-class EmailVerificationRequest(BaseModel):
-    email: EmailStr
+class TokenData(BaseModel):
+    """Schema for data inside the JWT token (e.g., subject ID)."""
+    id: Optional[str] = None # 'sub' field in JWT is typically string
 
-# Schema for password forgot request
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 
-# Schema for password reset request
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str = Field(..., min_length=6)

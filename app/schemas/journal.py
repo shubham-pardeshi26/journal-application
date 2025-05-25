@@ -1,59 +1,41 @@
 # app/schemas/journal.py
 
-from pydantic import BaseModel, Field
-from typing import Optional, List
+from pydantic import BaseModel, Field, ConfigDict # Import ConfigDict
+from typing import Optional
 from datetime import datetime
 import uuid
+from enum import Enum # Make sure Enum is imported
 
-class JournalType(str): # Define custom type or just use str for enum
-    MEMORY = "memory"
-    SPECIAL_DAY = "special_day"
-    REFLECTION = "reflection"
-    GRATITUDE = "gratitude"
-    GOAL = "goal"
-    DREAM = "dream"
-    OTHER = "other"
+# Define the JournalType Enum (if you haven't already)
+class JournalType(str, Enum):
+    PRIVATE = "private"
+    PUBLIC = "public"
+    GROUP = "group"
 
 class JournalBase(BaseModel):
-    title: Optional[str] = Field(None, max_length=255)
-    content: str
-    location: Optional[str] = Field(None, max_length=255)
-    j_type: Optional[JournalType] = None # Use the custom type
-    mood: Optional[str] = Field(None, max_length=50)
+    # Add model_config for arbitrary types
+    model_config = ConfigDict(arbitrary_types_allowed=True) # <--- ADD THIS LINE
+
+    title: str = Field(..., min_length=1, max_length=200)
+    content: str = Field(..., min_length=1)
+    journal_type: JournalType = Field(default=JournalType.PRIVATE) # Using your Enum
+    # Assuming group_id is optional and only for GROUP journals
+    group_id: Optional[uuid.UUID] = None # Using uuid.UUID for type hinting
 
 class JournalCreate(JournalBase):
-    group_id: Optional[uuid.UUID] = None # Nullable for solo journals
+    pass
 
-class JournalUpdate(JournalBase):
-    pass # All fields are optional for update
-
-# Forward declaration for Pydantic (to prevent circular imports)
-class CommentResponseMinimal(BaseModel):
-    id: uuid.UUID
-    comment_text: Optional[str]
-    user_id: uuid.UUID
-    created_at: datetime
-    class Config:
-        from_attributes = True
-
-class MediaResponseMinimal(BaseModel):
-    id: uuid.UUID
-    file_url: str
-    file_type: str
-    caption: Optional[str]
-    uploaded_at: datetime
-    class Config:
-        from_attributes = True
-
+class JournalUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, max_length=200)
+    content: Optional[str] = Field(None, min_length=1)
+    journal_type: Optional[JournalType] = None
+    group_id: Optional[uuid.UUID] = None
 
 class JournalResponse(JournalBase):
     id: uuid.UUID
     user_id: uuid.UUID
-    group_id: Optional[uuid.UUID]
     created_at: datetime
     updated_at: datetime
-    comments: List[CommentResponseMinimal] = [] # Optional: include comments or fetch separately
-    media: List[MediaResponseMinimal] = [] # Optional: include media or fetch separately
 
     class Config:
-        from_attributes = True
+        from_attributes = True # Use from_attributes for Pydantic v2
