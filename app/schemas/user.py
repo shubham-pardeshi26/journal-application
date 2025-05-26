@@ -3,7 +3,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from datetime import datetime
-import uuid
 
 # Base User schema for common attributes
 class UserBase(BaseModel):
@@ -17,7 +16,7 @@ class UserCreate(UserBase):
 
 # Schema for user data returned from API (sensitive fields omitted)
 class UserResponse(UserBase): # <--- Inherits full_name from UserBase
-    id: uuid.UUID
+    id: str # Change from uuid.UUID to str
     is_active: bool
     is_verified: bool
     created_at: datetime
@@ -37,9 +36,16 @@ class UserUpdate(BaseModel):
 # If UserResponseMinimal is used in other schemas (e.g., in Group schema), make sure it also includes full_name if desired for minimal representation.
 # For example:
 class UserResponseMinimal(BaseModel):
-    id: uuid.UUID
+    id: str # Change from uuid.UUID to str
     username: str
     email: EmailStr
     full_name: Optional[str] = None # <--- ADDED HERE IF YOU NEED IT FOR MINIMAL
     class Config:
         from_attributes = True
+
+
+# --- Schema for changing user password ---
+class UserPasswordChange(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=6)
+    confirm_new_password: str = Field(..., min_length=6) # For client-side validation, server also checks match
