@@ -1,39 +1,37 @@
 # app/schemas/group.py
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
-import uuid
+# REMOVE: import uuid # No longer needed for str types
+from app.schemas.user import UserResponseMinimal # <--- IMPORT UserResponseMinimal here
 
-# Forward declaration for Pydantic (needed for circular references)
-class UserResponseMinimal(BaseModel):
-    id: uuid.UUID
-    username: str
-    email: EmailStr
-    class Config:
-        from_attributes = True
+# Removed direct definition of UserResponseMinimal as it's now imported
 
 class GroupMemberResponse(BaseModel):
-    id: uuid.UUID
-    user_id: uuid.UUID
-    group_id: uuid.UUID
+    id: str # Change from uuid.UUID to str
+    user_id: str # Change from uuid.UUID to str
+    group_id: str # Change from uuid.UUID to str
     joined_at: datetime
     is_admin: bool
-    user: UserResponseMinimal # Nested user data
+    user: UserResponseMinimal # Nested user data, now correctly typed as str for IDs
     class Config:
         from_attributes = True
 
 class GroupBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     max_members: int = Field(..., ge=2, le=5) # Group size between 2 and 5
+    # Add group_code to GroupBase for consistency with GroupCreate/Update
+    group_code: Optional[str] = Field(None, min_length=8, max_length=10) # Made optional for auto-generation
+    description : Optional[str] = None
 
 class GroupCreate(GroupBase):
-    pass
+    pass # No additional fields for creation beyond base
 
 class GroupResponse(GroupBase):
-    id: uuid.UUID
-    group_code: str
-    created_by_user_id: uuid.UUID
+    id: str # Change from uuid.UUID to str
+    # group_code is now in GroupBase
+    created_by_user_id: str # Change from uuid.UUID to str
     created_at: datetime
     updated_at: datetime
     members: List[GroupMemberResponse] = [] # Nested list of members
@@ -42,7 +40,13 @@ class GroupResponse(GroupBase):
         from_attributes = True
 
 class GroupJoin(BaseModel):
-    group_code: str = Field(..., min_length=10, max_length=10) # Assuming 10 char unique code
+    group_code: str = Field(..., min_length=8, max_length=10) # Assuming 8-10 char code
 
 class GroupUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=100)
+    group_code: Optional[str] = Field(None, min_length=8, max_length=10) # Added group_code update
+    max_members: Optional[int] = Field(None, ge=2, le=5) # Added max_members update
+
+
+class GroupMemberAdd(BaseModel):
+    user_id: str # The ID of the user to add
