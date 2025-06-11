@@ -31,6 +31,7 @@ class User(Base):
     group_memberships = relationship("GroupMember", back_populates="user", cascade="all, delete-orphan")
     comments = relationship("Comment", back_populates="creator", cascade="all, delete-orphan")
     media = relationship("Media", foreign_keys="[Media.uploader_id]", back_populates="uploader", cascade="all, delete-orphan")
+    group_invitations = relationship("GroupMemberInvitation", back_populates="user")
 
     def __repr__(self):
         return f"<User(email='{self.email}', username='{self.username}')>"
