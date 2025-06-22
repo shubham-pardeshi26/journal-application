@@ -1,5 +1,6 @@
 # app/main.py
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.v1 import api_router as v1_api_router # Correctly imports the 'api_router' from app.api.v1
 # from app.core.database import Base, engine # Keep this line if you want the startup_event for create_all, otherwise remove
@@ -9,6 +10,21 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     docs_url="/docs",
     redoc_url="/redoc"
+)
+
+origins = [
+    "http://localhost:8080",  # Your frontend's origin
+    # You might have other origins for development or production
+    "http://127.0.0.1:8080",
+    # "https://your-production-frontend.com", # For production
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,          # Allows specific origins
+    allow_credentials=True,         # Allow cookies to be sent with requests
+    allow_methods=["*"],            # Allow all methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],            # Allow all headers
 )
 
 # Include the API routers

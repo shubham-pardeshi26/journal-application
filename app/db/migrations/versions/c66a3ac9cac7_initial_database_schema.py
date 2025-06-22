@@ -1,8 +1,8 @@
-"""Re-finalized schema with complete relationships and consistent UUIDs
+"""Initial database schema
 
-Revision ID: d713b59034fa
+Revision ID: c66a3ac9cac7
 Revises: 
-Create Date: 2025-05-26 22:20:06.493524
+Create Date: 2025-06-11 15:11:21.006677
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'd713b59034fa'
+revision: str = 'c66a3ac9cac7'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -43,6 +43,8 @@ def upgrade() -> None:
     sa.Column('created_by_user_id', sa.String(length=36), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('is_delete', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['created_by_user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -58,6 +60,18 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_tokens_token'), 'user_tokens', ['token'], unique=True)
+    op.create_table('group_member_invitations',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('invite_uuid', sa.String(length=36), nullable=True),
+    sa.Column('group_id', sa.String(length=36), nullable=False),
+    sa.Column('user_id', sa.String(length=36), nullable=False),
+    sa.Column('status', sa.Enum('PENDING', 'APPROVED', 'EXPIRED', 'REJECTED', name='invitationstatusenum'), nullable=True),
+    sa.Column('create_date', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['group_id'], ['groups.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('invite_uuid')
+    )
     op.create_table('group_members',
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('group_id', sa.String(length=36), nullable=False),
@@ -122,6 +136,7 @@ def downgrade() -> None:
     op.drop_table('comments')
     op.drop_table('journals')
     op.drop_table('group_members')
+    op.drop_table('group_member_invitations')
     op.drop_index(op.f('ix_user_tokens_token'), table_name='user_tokens')
     op.drop_table('user_tokens')
     op.drop_index(op.f('ix_groups_group_code'), table_name='groups')

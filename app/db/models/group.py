@@ -1,9 +1,9 @@
 # app/db/models/group.py
 
-from enum import Enum
+from enum import Enum as pyEnum
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func # Keep if used elsewhere
 from app.db import Base
@@ -48,7 +48,7 @@ class GroupMember(Base):
     def __repr__(self):
         return f"<GroupMember(group_id='{self.group_id}', user_id='{self.user_id}')>"
     
-class InvitationStatusEnum(Enum):
+class InvitationStatusEnum(pyEnum):
     PENDING = "pending"
     APPROVED = "approved"
     EXPIRED = "expired"
